@@ -9,9 +9,6 @@ const Grid = ({header,children}) => (
             {children}
         </Content>
     </Wrapper>
-
-
-
 );
 
 

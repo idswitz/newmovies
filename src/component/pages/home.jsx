@@ -4,7 +4,9 @@ import SearchBar from '../searchbar'
 // import Grid from '../grid'
 // import Thumb from '../thumb'
 import { useHomeFetch } from '../../hooks/useHomeFetch';
-import {IMAGE_BASE_URL,BACKDROP_SIZE} from '../../API/config'
+import {IMAGE_BASE_URL,BACKDROP_SIZE, POSTER_SIZE} from '../../API/config'
+import Thumb from '../thumb';
+import Grid from '../grid';
 
 const Home = () => {
 
@@ -29,6 +31,23 @@ const Home = () => {
 
       <SearchBar setSearchTerm={setSearchTerm} />
 
+      <Grid header={searchTerm ? 'Search Result' : 'Popular Movies'}>
+                {state.results.map(movie => (
+
+                    <Thumb
+                     key={movie.id}
+                     clickable
+                     image={
+                         movie.poster_path
+                          ? IMAGE_BASE_URL + POSTER_SIZE + movie.poster_path 
+                          : Image
+                        
+                     }
+                     movieId={movie.id}
+                     />
+
+                     ))}
+            </Grid>
     </>
   )
 
