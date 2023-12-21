@@ -1,9 +1,15 @@
-import { useState, useEffect, useReducer } from "react";
-
-
-//Helpers
-// import {isPersistedState} from '../helpers';
+import { createContext } from "react";
 import endpoints from "../API/endpoints";
+import { useReducer } from "react";
+import { useEffect } from "react";
+
+export const action_types = {
+    movies_loading: 'MOVIES/LOADING',
+    movies_successful: 'MOVIES/SUCCESSFUL',
+    movies_error: 'MOVIES/ERROR',
+    movies_reset: 'MOVIES/RESET',
+    movies_searchTerm: 'MOVIES/SEARCH'
+}
 
 const initialState = {
     page: 0,
@@ -21,13 +27,7 @@ const reducerState = {
 
 }
 
-export const action_types = {
-    movies_loading: 'MOVIES/LOADING',
-    movies_successful: 'MOVIES/SUCCESSFUL',
-    movies_error: 'MOVIES/ERROR',
-    movies_reset: 'MOVIES/RESET',
-    movies_searchTerm: 'MOVIES/SEARCH'
-}
+export const MoviesContext = createContext({state:reducerState,dispatc: ()=>{}})
 
 const moviesReducer = (state = reducerState, action) => {
     const { type, payload } = action;
@@ -58,21 +58,16 @@ const moviesReducer = (state = reducerState, action) => {
 
 }
 
-export const useHomeFetch = () => {
-    // const [searchTerm,setSearchTerm] = useState('');
-    // const [state, setState] = useState(initialState);
-    // const [loading, setLoading] = useState(false);
-    // const [error, setError] = useState(false);
-    // const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+
+ export const MoviesProvider = ({children}) =>{
+
     const [state, dispatch] = useReducer(moviesReducer, reducerState)
 
     const fetchMovies = async (page, searchTerm = '') => {
         try {
             dispatch({ type: action_types.movies_loading });
-            // setError(false);
-            // setLoading(true);
-
-
+            
             const movies = await endpoints.fetchMovies(searchTerm, page);
 
             const newMovies = {
@@ -82,45 +77,33 @@ export const useHomeFetch = () => {
 
             dispatch({ type: action_types.movies_successful, payload: newMovies })
 
-            // setState(prev => ({
-            //     ...movies,
-            //     results:
-            //     page > 1 ? [...prev.results, ...movies.results] : [...movies.results]
-            //}));
         } catch (err) {
             console.log(err)
             dispatch({ type: action_types.movies_error });
         }
-        // setLoading(false);
-
     }
 
-    //Initial render and search
-
     useEffect(() => {
-        // if(!searchTerm){
-        //     const sessionState = isPersistedState('homeState');
-
-        //     if(sessionState){
-        //         setState(sessionState);
-        //         return;
-        //     }
-        // }
         dispatch({ type: action_types.movies_reset })
         fetchMovies(1, state.searchTerm);
     }, [state.searchTerm]);
 
-    //Laod More
     useEffect(() => {
         if (!state.isLoadingMore) return;
         fetchMovies(state.movies.page + 1, state.searchTerm);
-        // setIsLoadingMore(false);
     }, [state.isLoadingMore, state.searchTerm, state.movies.page]);
 
-    //write to sessionStorage
-    // useEffect(()=>{
-    //     if(!searchTerm) sessionStorage.setItem('homeState',JSON.stringify(state))
-    // },[searchTerm,state]);
+    return (
+        <MoviesContext.Provider value = {{state,dispatch}}>
+            {children}
+        </MoviesContext.Provider>
+    )
 
-    return { state, dispatch };
 }
+
+
+
+
+
+
+

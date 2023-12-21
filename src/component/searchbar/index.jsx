@@ -5,9 +5,11 @@ import searchIcon from '../../images/search-icon.svg';
 
 //styles
 import {Wrapper,Content} from './SearchBar.styles';
+import { action_types } from  '../../hooks/useHomeFetch'
 
-const SearchBar = ({setSearchTerm}) => {
-    const [state,setState] = useState('');
+
+const SearchBar = ({dispatch, searchTerm}) => {
+    // const [state,setState] = useState('');
     const initial = useRef(true);
 
 
@@ -17,22 +19,22 @@ const SearchBar = ({setSearchTerm}) => {
             return;
         }
         const timer = setTimeout(()=>{
-            setState(state);
+            dispatch({type: action_types.movies_searchTerm, searchTerm})
         },500)
 
         return () => clearTimeout(timer);
-    },[setSearchTerm,state]);
+    },[action_types.movies_searchTerm]);
 
     return (
         <Wrapper>
             <Content>
                 <img src={searchIcon} alt="search-icon" />
-
                 <input
-                  type="text"
-                  placeholder="Search Movie"
-                  onChange={event=>setState(event.currentTarget.value)}
-                  value={state}
+                type="text" 
+                placeholder="Search Movie"
+                onChange={(event)=>dispatch({type:action_types.movies_searchTerm,payload:event.currentTarget.value})}
+                value={searchTerm}
+                
                 />
             </Content>
         </Wrapper>
